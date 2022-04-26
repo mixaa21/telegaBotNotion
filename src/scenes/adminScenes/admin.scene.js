@@ -9,6 +9,9 @@ const service_account = require('../../../service-account.json')
 const split = require('../../functions/split')
 const removeItem = require('../../functions/removeItem')
 const reports = require('../../googleDoc/sendReports')
+const NotionService = require("../../notion/notionService")
+
+
 //Проверка на то, зарегистрирован пользователь или нет.
 async function getUsersKeys (users, uniCode, ctx) {
     try {
@@ -45,6 +48,7 @@ async function initAdminChat (client) {
                         [{ text: 'Сменить имя', callback_data: 'newName' }],
                         [{ text: 'Отправить отчёты', callback_data: 'sendReports' }],
                         [{ text: 'Получить отчёт', callback_data: 'getReports' }],
+                        [{ text: 'Забрать задачи с notion', callback_data: 'getTasks' }],
                         [{ text: 'Сотрудники', callback_data: 'people' }],
                         [{ text: 'Уведомления', callback_data: 'notifications' }],
                         [{ text: 'Отправить сообщение', callback_data: 'message' }],
@@ -155,6 +159,25 @@ async function initAdminChat (client) {
             exchange.action('getReports', async ctx => {
                 try {
                     await reports.getAdminReports(ctx, client)
+                } catch (e) {
+                    console.log(e)
+                }
+            })
+            exchange.action('getTasks', async ctx => {
+                try {
+                    const notion = new NotionService()
+                    const tasksArr = await notion.getAllTasks()
+                    tasksArr.forEach(async item => {
+                        if (item.properties.Client.rich_text.length > 0 && item.properties.Project.select) {
+                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, item.properties.Project.select.name, item.properties.Status.select.name])
+                        } else if (item.properties.Client.rich_text.length) {
+                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, "Без проекта", item.properties.Status.select.name])
+                        } else if (item.properties.Project.select) {
+                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, "Без клиента", item.properties.Project.select.name, item.properties.Status.select.name])
+                        } else {
+                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, "Без клиента", "Без проекта", item.properties.Status.select.name])
+                        }
+                    })
                 } catch (e) {
                     console.log(e)
                 }

@@ -31,6 +31,15 @@ module.exports = class NotionService {
       },
     });
   }
+
+  // получить задачи юзера у которых статус сделать или в процессе
+  async getAllTasks() {
+    const res = await this.notion.databases.query({
+      database_id: this.databaseId,
+    });
+    return res.results
+  }
+
 // получить задачи юзера у которых статус сделать или в процессе
   async getTasksByUserId(userId) {
     const res = await this.notion.databases.query({
@@ -174,6 +183,8 @@ module.exports = class NotionService {
 }
 
 // const notion = new NotionService()
+//
+// notion.getAllTasks()
 //
 // notion.getTasksByUserId().then((res) => {
 //   console.log(res)
