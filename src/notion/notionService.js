@@ -138,7 +138,7 @@ module.exports = class NotionService {
         properties: {
           'Status': {
             select: {
-              name: "Done",
+              name: "To Check",
             },
           },
         },

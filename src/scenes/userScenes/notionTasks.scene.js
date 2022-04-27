@@ -17,7 +17,7 @@ module.exports = async function initnotionTasks (client) {                      
                     ['Вывести задачи, которые в процессе'],
                     ['Затрекать задачу'],
                     ['Затрекать выполненную задачу'],
-
+                    ['Создать задачу'],
                 ])
                 .oneTime()
                 .resize()
@@ -56,6 +56,9 @@ module.exports = async function initnotionTasks (client) {                      
                 case 'Затрекать выполненную задачу':
                     ctx.session.taskIsDone = true
                     ctx.scene.enter('report')
+                    break
+                case 'Создать задачу':
+                    ctx.scene.enter('createTaskByProject')
                     break
                 default:
                     await ctx.reply('Выберите опцию с клавиатуры пожалуйста')
