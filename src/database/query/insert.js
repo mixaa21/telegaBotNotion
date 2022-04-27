@@ -8,9 +8,13 @@ module.exports = {
                 VALUES ($1)`
     }
     , newTracking () {
-        return `INSERT INTO "tracking" (title, client, project, status)
-                VALUES ($1, $2, $3, $4)`
-    }
+        return `INSERT INTO "tracking" (user_id, title)
+                VALUES ($1, $2)`
+    },
+    addTask () {
+    return `INSERT INTO "notion_tasks" (id, title, client, project, status)
+                VALUES ($1, $2, $3, $4, $5)`
+}
     , client () {
         return `INSERT INTO "clients" (name)
                 VALUES ($1)`

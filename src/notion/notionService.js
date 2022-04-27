@@ -41,7 +41,7 @@ module.exports = class NotionService {
   }
 
 // получить задачи юзера у которых статус сделать или в процессе
-  async getTasksByUserId(userId) {
+  async getActiveTasks(userId) {
     const res = await this.notion.databases.query({
       database_id: this.databaseId,
       filter: {
@@ -67,14 +67,7 @@ module.exports = class NotionService {
         ]
       }
     });
-    const taskArr = res.results.map(item => {
-      return item.properties.Name.title[0].plain_text
-    })
-    let tasks = ""
-    for (let i = 0; i < taskArr.length; i++) {
-      tasks += '\n' + taskArr[i]
-    }
-    return tasks
+    return res.results
   }
 
   // получить задачи юзера у которых статус ToDo
@@ -97,14 +90,7 @@ module.exports = class NotionService {
         ]
       }
     });
-    const taskArr = res.results.map(item => {
-      return item.properties.Name.title[0].plain_text
-    })
-    let tasks = ""
-    for (let i = 0; i < taskArr.length; i++) {
-      tasks += '\n' + taskArr[i]
-    }
-    return tasks
+    return  res.results
   }
 
   // получить задачи юзера у которых статус InProgress
@@ -127,14 +113,7 @@ module.exports = class NotionService {
         ]
       }
     });
-    const taskArr = res.results.map(item => {
-      return item.properties.Name.title[0].plain_text
-    })
-    let tasks = ""
-    for (let i = 0; i < taskArr.length; i++) {
-      tasks += '\n' + taskArr[i]
-    }
-    return tasks
+    return  res.results
   }
 
   // получить задачи по клиенту
@@ -151,12 +130,11 @@ module.exports = class NotionService {
   }
 
 // обновление статуса задачи на Done
-  async updateTask() {
+  async updateTask(padeId) {
     (async () => {
       const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
-      const pageId = '8b589d41-10fd-4091-b4db-c98999dc0281';
       const response = await notion.pages.update({
-        page_id: pageId,
+        page_id: padeId,
         properties: {
           'Status': {
             select: {

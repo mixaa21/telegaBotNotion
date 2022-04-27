@@ -169,13 +169,13 @@ async function initAdminChat (client) {
                     const tasksArr = await notion.getAllTasks()
                     tasksArr.forEach(async item => {
                         if (item.properties.Client.rich_text.length > 0 && item.properties.Project.select) {
-                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, item.properties.Project.select.name, item.properties.Status.select.name])
+                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, item.properties.Project.select.name, item.properties.Status.select.name])
                         } else if (item.properties.Client.rich_text.length) {
-                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, "Без проекта", item.properties.Status.select.name])
+                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, "Без проекта", item.properties.Status.select.name])
                         } else if (item.properties.Project.select) {
-                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, "Без клиента", item.properties.Project.select.name, item.properties.Status.select.name])
+                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, "Без клиента", item.properties.Project.select.name, item.properties.Status.select.name])
                         } else {
-                            await client.query(insert.newTracking(), [item.properties.Name.title[0].plain_text, "Без клиента", "Без проекта", item.properties.Status.select.name])
+                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, "Без клиента", "Без проекта", item.properties.Status.select.name])
                         }
                     })
                 } catch (e) {

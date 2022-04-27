@@ -1,6 +1,7 @@
 const { Telegraf } = require('telegraf')
 const { Scenes, session } = require('telegraf')
 const initUserChat = require('./src/scenes/userScenes/start.scene')
+const initRegistration = require("./src/scenes/userScenes/registration.scene")
 const adminChat = require('./src/scenes/adminScenes/admin.scene')
 const initReport = require('./src/scenes/userScenes/report.scene')
 const initTime = require('./src/scenes/userScenes/time.scene')
@@ -39,6 +40,7 @@ async function start () {
     bot.use(session())                                            // регистрация промежуточного ПО ???
     const stage = new Scenes.Stage([                       // создание объекта stage класса Stage который принимает массив сцен
         await initUserChat(client),                               // вызываем импортированную функцию initUserChat в которую передаем объект client (postgreSql)
+        await initRegistration(client),
         await initNotionTasks(client),
         await initReport(client),                                 // вызываем ипмортированную функцию initReport в которую передаем объект client (postgreSql)
         await initTime(client),                                   // вызываем ипмортированную функцию initTime в которую передаем объект client (postgreSql)

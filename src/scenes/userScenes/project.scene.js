@@ -24,7 +24,7 @@ module.exports = async function initProject (client) {
                     await ctx.reply(reply.noProject)
                     await client.query(update.project(), ['Без проекта', trackingId.rows[0].id])
                     await ctx.reply(reply.reportSaved)
-                    ctx.scene.enter('report')
+                    ctx.scene.enter('user')
                     return
                 } catch (e) {
                     await functions.error(e, ctx)
@@ -43,7 +43,7 @@ module.exports = async function initProject (client) {
                     await ctx.reply(reply.noProject)
                     await client.query(update.project(), ['Без проекта', trackingId.rows[0].id])
                     await ctx.reply(reply.reportSaved)
-                    ctx.scene.enter('report')
+                    ctx.scene.enter('user')
                     return
                 } catch (e) {
                     await functions.error(e, ctx)
@@ -94,7 +94,7 @@ module.exports = async function initProject (client) {
                 if (sessionCheck) {
                     await client.query(update.project(), [callbackData, trackingId.rows[0].id])
                     ctx.reply(reply.reportSaved)
-                    ctx.scene.enter('report')
+                    ctx.scene.enter('user')
                     return
                 } else {
                     ctx.reply(reply.project)

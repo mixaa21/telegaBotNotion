@@ -1,36 +1,22 @@
 const { Scenes } = require('telegraf')                                // импортируем telegraf
 const functions = require('./sceneFunctions')                         //
 const reply = require('../../../reply.json')                          // импортируем reply.json для вывода сообщений пользователю
+const NotionService = require("../../notion/notionService")
+
 
 module.exports = async function initTracking (client) {               // экспортируем функцию initTracking
     const exchange = new Scenes.BaseScene('report')
+    const notion = new NotionService()
     const textHandler = async (ctx) => {                              // функция текстовый обработчик
         try {
-            console.log('report on text reaction')                    // вывести в консоль отчет о текстовой реакции
-            let _ = await functions.findUserAndTracking(client, ctx)   // переменная _ принимает функцию из импортированного объекта functions
-            if (_.tracking) {                                           // если трекинг не пустой
-                console.log('report founded')                           // вывести отчет найден
-                if (!_.tracking.title) {                                // если трекинг тайтл пустой
-                    await functions.addNewReport(client, _.user, ctx)   // вызвать функцию addNewReport которая добавляет новый отчет
-                    ctx.scene.enter('time')                             // перейти в сцену time
-                }
-                if (!_.tracking.time) {
-                    ctx.scene.enter('time')
-                }
-                if (!_.tracking.project) {
-                    ctx.scene.enter('project')
-                }
-                if (!_.tracking.client) {
-                    ctx.scene.enter('client')
-                } else {
-                    await functions.addNewReport(client, _.user, ctx)
-                    ctx.scene.enter('time')
-                }
-            } else {
-                console.log('no report is not found')
-                await functions.addNewReport(client, _.user, ctx)
-                ctx.scene.enter('time')
-            }
+            let taskArr = await notion.getActiveTasks(ctx.session.userNotionId)
+            taskArr = taskArr.map((item) => {                                   // обработка элеметов массива clientsArr
+                return [{ text: item.properties.Name.title[0].plain_text, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
+            })
+            ctx.session.taskArr = taskArr
+            taskArr.push([{ text: 'Ввести свою', callback_data: 'inputowntask' }])
+            taskArr.push([{ text: 'Отменить', callback_data: 'cancel' }])
+            await ctx.reply("Выберите задачу из активных в notion, которую вы выполнили или введите свою", {reply_markup: {inline_keyboard: taskArr}})
         } catch (e) {
             console.log(e)
             await ctx.telegram.sendMessage(1444238727, e.message)
@@ -46,6 +32,29 @@ module.exports = async function initTracking (client) {               // экс�
     exchange.command('/start', async ctx => {                       // создание промежуточного ПО для обработки указанной команды, если написали /start
         ctx.scene.enter('user')                                                  // запустить сцену user
     })
-    exchange.on('text', textHandler)                                   // если пользователь ввел сообщение, вызвать функцию textHandler
+    exchange.on('callback_query', async ctx => {
+        switch (ctx.update.callback_query.data) {
+            case 'inputowntask':
+                await ctx.reply("Введите вашу задачу")
+                return
+                break
+            case 'cancel':
+                ctx.scene.enter('user')
+                break
+            default:
+                if (ctx.session.taskIsDone) {
+                    notion.updateTask(ctx.update.callback_query.data)
+                }
+                ctx.session.taskArr = ctx.session.taskArr.filter(item => {
+                    return item[0].callback_data === ctx.update.callback_query.data
+                })
+                await functions.addNewReport(client, ctx.session.userId, ctx.session.taskArr[0][0].text)
+                ctx.scene.enter('time')
+        }
+    })
+    exchange.on('text', async ctx => {
+        await functions.addNewReport(client, ctx.session.userId, ctx.message.text)
+        ctx.scene.enter('time')
+    })
     return exchange
 }

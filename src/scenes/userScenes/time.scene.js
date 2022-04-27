@@ -10,7 +10,6 @@ module.exports = async function initTime (client) {             // экспор�
     const exchange = new Scenes.BaseScene('time')            // создаем объект exchange класса Scenes.BaseScene с id time
     let timeArr = ['15 минут', '30 минут', '45 минут', '60 минут', 'Другое (в минутах)', 'Отменить']  // создаем массив времени
     exchange.enter(async ctx => {                                // вход в сцену
-        console.log(ctx)                                             // вывести контекст
         ctx.session.scene = 'time'                                   //
         if (ctx.session.scene === 'time') {
             try {
