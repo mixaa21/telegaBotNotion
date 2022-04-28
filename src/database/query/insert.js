@@ -8,8 +8,8 @@ module.exports = {
                 VALUES ($1)`
     }
     , newTracking () {
-        return `INSERT INTO "tracking" (user_id, title)
-                VALUES ($1, $2)`
+        return `INSERT INTO "tracking" (user_id, title, client, project)
+                VALUES ($1, $2, $3, $4)`
     },
     addTask () {
     return `INSERT INTO "notion_tasks" (id, title, client, project, status)

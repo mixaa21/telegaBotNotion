@@ -44,7 +44,13 @@ module.exports = async function initTime (client) {             // экспор�
                 let time = preTime.toString().replace(re, ' ').replace('.', ',')
                 if (Number(ctx.message.text)) {
                     await client.query(update.time(), [time, trackingId.rows[0].id])
-                    ctx.scene.enter('client')
+                    if (ctx.session.isTaskFromNotion) {
+                        await ctx.reply(reply.reportSaved)
+                        ctx.scene.enter('user')
+                    } else {
+                        ctx.scene.enter('client')
+                    }
+
                 } else {
                     ctx.reply(reply.isNotANumber)
                 }
@@ -75,7 +81,7 @@ module.exports = async function initTime (client) {             // экспор�
                     }
                     if (callbackData === timeArr[5]) {
                         await client.query(del.tracking(), [trackingId.rows[0].id])
-                        ctx.scene.enter('report')
+                        ctx.scene.enter('user')
                         await ctx.reply(reply.greetings)
                         return
                     }
@@ -85,7 +91,13 @@ module.exports = async function initTime (client) {             // экспор�
                 let time = preTime.toString().replace(re, ' ').replace('.', ',')
                 if (sessionCheck) {
                     await client.query(update.time(), [time, trackingId.rows[0].id])
-                    ctx.scene.enter('client')
+                    if (ctx.session.isTaskFromNotion) {
+                        await ctx.reply(reply.reportSaved)
+                        ctx.scene.enter('user')
+                    } else {
+                        ctx.scene.enter('client')
+                    }
+
                 } else {
                     ctx.reply(reply.time)
                 }

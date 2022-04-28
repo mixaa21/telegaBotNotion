@@ -101,7 +101,7 @@ module.exports = async function initTime (client) {
                     let trackingId = await client.query(select.id(), [idData.rows[0].id])
                     if (callbackData === 'cancel') {
                         await client.query(del.tracking(), [trackingId.rows[0].id])
-                        ctx.scene.enter('report')
+                        ctx.scene.enter('user')
                         await ctx.reply(reply.greetings)
                         return
                     }

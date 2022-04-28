@@ -8,9 +8,9 @@ module.exports = {
             await ctx.telegram.sendMessage(1444238727, e.message)  //вывести в чат ошибку
         }
     },
-    addNewReport: async function (client, id, title) {       // функция добавления нового отчета
+    addNewReport: async function (clientdb, id, title, client, project) {       // функция добавления нового отчета
         try {
-            await client.query(insert.newTracking(), [id, title])  // вставить в базу данных id юзера и текст сообщения
+            await clientdb.query(insert.newTracking(), [id, title, client, project])  // вставить в базу данных id юзера и текст сообщения
         } catch (e) {
             await this.error(e, ctx)
         }

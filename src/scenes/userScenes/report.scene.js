@@ -9,8 +9,9 @@ module.exports = async function initTracking (client) {               // экс�
     const notion = new NotionService()
     const textHandler = async (ctx) => {                              // функция текстовый обработчик
         try {
-            let taskArr = await notion.getActiveTasks(ctx.session.userNotionId)
-            taskArr = taskArr.map((item) => {                                   // обработка элеметов массива clientsArr
+            let tasksArr = await notion.getActiveTasks(ctx.session.userNotionId)
+            ctx.session.tasksArr = tasksArr
+            taskArr = tasksArr.map((item) => {                                   // обработка элеметов массива clientsArr
                 return [{ text: item.properties.Name.title[0].plain_text, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
             })
             ctx.session.taskArr = taskArr
@@ -42,13 +43,15 @@ module.exports = async function initTracking (client) {               // экс�
                 ctx.scene.enter('user')
                 break
             default:
-                if (ctx.session.taskIsDone) {
-                    notion.updateTask(ctx.update.callback_query.data)
-                }
-                ctx.session.taskArr = ctx.session.taskArr.filter(item => {
-                    return item[0].callback_data === ctx.update.callback_query.data
+                ctx.session.tasksArr = ctx.session.tasksArr.filter(item => {
+                    return item.id === ctx.update.callback_query.data
                 })
-                await functions.addNewReport(client, ctx.session.userId, ctx.session.taskArr[0][0].text)
+                if (ctx.session.taskIsDone) {
+                    await notion.updateStatusTaskToCheck(ctx.update.callback_query.data)
+                }
+                await notion.updateStatusTaskInProgress(ctx.update.callback_query.data)
+                ctx.session.isTaskFromNotion = true
+                await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, ctx.session.tasksArr[0].properties.Client.rich_text[0].text.content, ctx.session.tasksArr[0].properties.Project.select.name)
                 ctx.scene.enter('time')
         }
     })

@@ -23,10 +23,16 @@ module.exports = async function initRegistration (client) {
             if ( ctx.update.message.text.includes('@') ) {
                 const notion = new NotionService()
                 userNotionId = await notion.getUsersByEmail(ctx.update.message.text)
-                ctx.session.userNotionId = userNotionId
-                await client.query(insert.user(), [ctx.message.from.first_name, ctx.chat.id, ctx.update.message.text, userNotionId])
-                await ctx.reply(reply.registrationIsDone)
-                ctx.scene.enter('user')
+                if (userNotionId) {
+                    ctx.session.userNotionId = userNotionId
+                    await client.query(insert.user(), [ctx.message.from.first_name, ctx.chat.id, ctx.update.message.text, userNotionId])
+                    await ctx.reply(reply.registrationIsDone)
+                    ctx.scene.enter('user')
+                } else {
+                    await ctx.reply(reply.mailIsNotInWorkspace)
+                    ctx.enter("user")
+                }
+
             } else {
                 await ctx.reply(reply.mailIsNotTrue)
             }

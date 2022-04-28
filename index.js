@@ -2,6 +2,12 @@ const { Telegraf } = require('telegraf')
 const { Scenes, session } = require('telegraf')
 const initUserChat = require('./src/scenes/userScenes/start.scene')
 const initRegistration = require("./src/scenes/userScenes/registration.scene")
+const createTaskByClient = require("./src/scenes/userScenes/createTaskByClient")
+const createTaskByProject = require("./src/scenes/userScenes/createTaskByProject")
+const createTaskByTitle = require("./src/scenes/userScenes/createTaskByTitle")
+const createTaskByAssignee = require("./src/scenes/userScenes/createTaskByAssignee")
+const shareTask = require("./src/scenes/userScenes/shareTask")
+const shareTaskByAssignee = require("./src/scenes/userScenes/shareTaskByAssignee")
 const adminChat = require('./src/scenes/adminScenes/admin.scene')
 const initReport = require('./src/scenes/userScenes/report.scene')
 const initTime = require('./src/scenes/userScenes/time.scene')
@@ -17,13 +23,14 @@ const { Client } = require('pg')
 const initNotionTasks = require('./src/scenes/userScenes/notionTasks.scene')
 
 async function start () {
-    process.setUncaughtExceptionCaptureCallback(async e => {
-        const bot = new Telegraf(process.env.BOT_TOKEN)          // создание объекта bot класса Telegraf в который передается бот токен, который можно получить написав в телеграмме BotFather
-        await bot.launch()                                       // запуск бота
-        // await bot.telegram.sendMessage(-482104010,
-        //   `WST-bot error:\n${e}\n\nБот не работает!!!`)
-        await bot.stop()
-    })
+    // process.setUncaughtExceptionCaptureCallback(async e => {
+    //     const bot = new Telegraf(process.env.BOT_TOKEN)          // создание объекта bot класса Telegraf в который передается бот токен, который можно получить написав в телеграмме BotFather
+    //     await bot.launch()                                       // запуск бота
+    //     // await bot.telegram.sendMessage(-482104010,
+    //     //   `WST-bot error:\n${e}\n\nБот не работает!!!`)
+    //     await bot.stop()
+    //     console.log("crash")
+    // })
     const client = new Client(process.env.DATABASE_URL)          // создание объекта client класса Client в который передается путь до базы данных
     client.connect(err => {                               // подключение к базе данных при помощи метода connect
         err                                                      // если ошибка
@@ -42,6 +49,12 @@ async function start () {
         await initUserChat(client),                               // вызываем импортированную функцию initUserChat в которую передаем объект client (postgreSql)
         await initRegistration(client),
         await initNotionTasks(client),
+        await createTaskByClient(client),
+        await createTaskByProject(client),
+        await createTaskByTitle(client),
+        await createTaskByAssignee(client),
+        await shareTask(client),
+        await shareTaskByAssignee(client),
         await initReport(client),                                 // вызываем ипмортированную функцию initReport в которую передаем объект client (postgreSql)
         await initTime(client),                                   // вызываем ипмортированную функцию initTime в которую передаем объект client (postgreSql)
         await initClient(client),                                 // вызываем ипмортированную функцию initClient в которую передаем объект client (postgreSql)
