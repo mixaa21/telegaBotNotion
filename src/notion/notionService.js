@@ -1,15 +1,12 @@
 const { Client } = require('@notionhq/client');
 require('dotenv').config();
 
-module.exports = class NotionService {
+class NotionService {
   notion = new Client({
     auth: 'secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek',
   });
   databaseId = '1ae042298a32413a8475200b8f165dda';
 
-  async getUsersList() {
-    return await this.notion.users.list({});
-  }
 // создать новую задачу
   async createTask(client, project, title, assigneesArr) {
     return this.notion.pages.create({
@@ -41,13 +38,11 @@ module.exports = class NotionService {
           type: "people",
           people: assigneesArr
         },
-        Client: {
-          type: "rich_text",
-          rich_text: [{
-            text: {
-              content: client
-            }
-          }]
+        Client:  {
+          type: "select",
+          select: {
+            name: client
+          }
         },
         Project: {
           type: "select",
@@ -59,10 +54,46 @@ module.exports = class NotionService {
     });
   }
 
-  // получить все задачи
-  async getAllTasks() {
+  async deleteTask(arrId) {
+    const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
+    arrId.forEach(async id => {
+      const response = await notion.blocks.delete({
+        block_id: id,
+      });
+    })
+  }
+
+  // получить всех юзеров в рабочей области
+  async getUsersList() {
+    await this.notion.users.list({}).then(res => {
+      console.log(res)
+    });
+  }
+
+  // получить все задачи отсортированные по статусу
+  async getAllTasksSortStatus() {
     const res = await this.notion.databases.query({
       database_id: this.databaseId,
+      "sorts": [
+      {
+        "property": "Status",
+        "direction": "ascending"
+      }
+    ]
+    });
+    return res.results
+  }
+
+  // получить все задачи отсортированные по времени создания
+  async getAllTasksSortCreateTime() {
+    const res = await this.notion.databases.query({
+      database_id: this.databaseId,
+      "sorts": [
+        {
+          "property": "Date Created",
+          "direction": "ascending"
+        }
+      ]
     });
     return res.results
   }
@@ -149,20 +180,39 @@ module.exports = class NotionService {
       database_id: this.databaseId,
       filter: {
           property: "Client",
-          rich_text: {
-            contains: "WormSoft"
+          select: {
+            name: client
           }
         }
     });
   }
 
+  // получить notion_id юзера по email
+  async getUsersByEmail(mail) {
+    let obj = await this.getUsersList()
+    obj = obj.results.filter(item => {
+      if (item.type === "person") {
+        return item.person.email === mail
+      }
+    })
+    if (obj.length) {
+      return obj[0].id
+    } else {
+      return null
+    }
+  }
+
 // обновление статуса задачи на To Check
-  async updateStatusTaskToCheck(padeId) {
+  async updateStatusTaskToCheck(padeId, assigneesArr) {
     (async () => {
       const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
       const response = await notion.pages.update({
         page_id: padeId,
         properties: {
+          Assignee: {
+            type: "people",
+            people: assigneesArr
+          },
           'Status': {
             select: {
               name: "To Check",
@@ -190,6 +240,29 @@ module.exports = class NotionService {
     })();
   }
 
+  // обновление постановки задачи
+  async updateNameTask(padeId, title) {
+    (async () => {
+      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
+      const response = await notion.pages.update({
+        page_id: padeId,
+        properties: {
+          Name: {
+            type: 'title',
+            title: [
+              {
+                type: 'text',
+                text: {
+                  content: title,
+                },
+              },
+            ],
+          },
+        },
+      });
+    })();
+  }
+
   // обновить исполнителей в задаче
   async updateAssigneeTask(padeId, assigneesArr) {
     (async () => {
@@ -206,26 +279,15 @@ module.exports = class NotionService {
     })();
   }
 
-// получить notion_id юзера по email
-  async getUsersByEmail(mail) {
-    let obj = await this.getUsersList()
-    obj = obj.results.filter(item => {
-      if (item.type === "person") {
-        return item.person.email === mail
-      }
-    })
-    if (obj.length) {
-      return obj[0].id
-    } else {
-      return null
-    }
-  }
-
 }
 
-// const notion = new NotionService()
+const notion = new NotionService()
+
+notion.getUsersList()
+// notion.getAllTasksSortCreateTime()
 //
-//
+// notion.deleteTask(["9e307cf9-95a3-4cdb-8029-4a323bff3078","705c6729-0fc0-4e9e-93e8-050953eade51"])
+
 // padeId = "59c107f5-f668-400f-8313-9eff93441a20"
 // arr = [{
 //   id: "1f167101-c12f-4162-b0da-8216155c33bc",

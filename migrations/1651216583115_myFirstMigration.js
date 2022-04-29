@@ -3,8 +3,8 @@
 exports.shorthands = undefined;
 
 exports.up = pgm => {
-    pgm.addColumns("tracking", {
-        status: {
+    pgm.addColumn("tracking", {
+        notion_link: {
             type: "varchar(1000)",
             notNull: false
         }

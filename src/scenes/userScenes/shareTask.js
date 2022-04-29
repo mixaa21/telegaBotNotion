@@ -11,13 +11,19 @@ module.exports = async function shareTask(client) {
         try {
             notion = new NotionService()
             let tasksArr = await notion.getActiveTasks(ctx.session.userNotionId)
-            ctx.session.tasksArr = tasksArr
-            taskArr = tasksArr.map((item) => {                                   // обработка элеметов массива clientsArr
-                return [{ text: item.properties.Name.title[0].plain_text, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
-            })
-            ctx.session.taskArr = taskArr
-            taskArr.push([{ text: 'Отменить', callback_data: 'back' }])
-            await ctx.reply("Выберите задачу которой хотите поделиться", {reply_markup: {inline_keyboard: taskArr}})
+            if (tasksArr.length) {
+                ctx.session.tasksArr = tasksArr
+                taskArr = tasksArr.map((item) => {                                   // обработка элеметов массива clientsArr
+                    return [{ text: item.properties.Name.title[0].plain_text, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
+                })
+                ctx.session.taskArr = taskArr
+                taskArr.push([{ text: 'Отменить', callback_data: 'back' }])
+                await ctx.reply(reply.chooseTask, {reply_markup: {inline_keyboard: taskArr}})
+            } else {
+                await ctx.reply(reply.noTasks)
+                ctx.scene.enter('user')
+            }
+
         } catch(e) {
             console.log(e)
         }

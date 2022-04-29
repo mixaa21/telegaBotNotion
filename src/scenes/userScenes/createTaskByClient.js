@@ -10,23 +10,28 @@ module.exports = async function createTaskByClient(client) {
         try {
             let clientsData = await client.query(select.clients())
             let clients = clientsData.rows
-            const clientsArr = []
-            for (let i = 0; i < clients.length; i++) {
-                clientsArr.push([clients[i].name, clients[i].id])
-            }
-            const arr = clientsArr.map((val) => {
-                return [{ text: val[0], callback_data: val[1] }]
-            })
-            arr.push([{ text: 'Назад', callback_data: 'back' }])
-            ctx.session.chosenClientname = arr
-            if (clientsArr[0] == null) {
-                ctx.reply(reply.noClients, keyboard)
+            if (clients[0] == null) {
+                ctx.reply(reply.noClients)
+                ctx.session.chosenClientname = "Без клиента"
+                ctx.scene.enter("createTaskByProject")
                 return
+            } else {
+                const clientsArr = []
+                for (let i = 0; i < clients.length; i++) {
+                    clientsArr.push([clients[i].name, clients[i].id])
+                }
+                const arr = clientsArr.map((val) => {
+                    return [{ text: val[0], callback_data: val[1] }]
+                })
+                arr.push([{ text: 'Без клиента', callback_data: 'noClient' }])
+                arr.push([{ text: 'Назад', callback_data: 'back' }])
+                ctx.session.chosenClientname = arr
+
+                const keyboard = {
+                    reply_markup: { inline_keyboard: arr }
+                }
+                await ctx.reply(reply.client, keyboard)
             }
-            const keyboard = {
-                reply_markup: { inline_keyboard: arr }
-            }
-            await ctx.reply(reply.client, keyboard)
         } catch(e) {
             console.log(e)
         }
@@ -35,12 +40,19 @@ module.exports = async function createTaskByClient(client) {
         switch (ctx.update.callback_query.data) {
             case "back":
                 ctx.scene.enter("user")
+                break
+            case "noclient":
+                ctx.session.chosenClientname = "Без клиента"
+                ctx.scene.enter("createTaskByProject")
+                break
+            default:
+                ctx.session.chosenClientname = ctx.session.chosenClientname.filter(item => {
+                    return item[0].callback_data == ctx.update.callback_query.data
+                })
+                ctx.session.chosenClientname = ctx.session.chosenClientname[0][0].text
+                ctx.scene.enter("createTaskByProject")
         }
-        ctx.session.chosenClientname = ctx.session.chosenClientname.filter(item => {
-            return item[0].callback_data == ctx.update.callback_query.data
-        })
-        ctx.session.chosenClientname = ctx.session.chosenClientname[0][0].text
-        ctx.scene.enter("createTaskByProject")
+
     })
     return exchange
 }

@@ -16,7 +16,7 @@ const NotionService = require("../../notion/notionService")
 async function getUsersKeys (users, uniCode, ctx) {
     try {
         if (users[0] == null, !users[0]) {
-            ctx.reply(reply.noUsers, keyboard)
+            ctx.reply(reply.noUsers)
             return false
         }
         const usersArr = []
@@ -48,8 +48,7 @@ async function initAdminChat (client) {
                         [{ text: 'Сменить имя', callback_data: 'newName' }],
                         [{ text: 'Отправить отчёты', callback_data: 'sendReports' }],
                         [{ text: 'Получить отчёт', callback_data: 'getReports' }],
-                        [{ text: 'Забрать задачи с notion', callback_data: 'getTasks' }],
-                        [{ text: 'Сотрудники', callback_data: 'people' }],
+                        [{ text: 'Сотрудники', callback_data: 'userMenu' }],
                         [{ text: 'Уведомления', callback_data: 'notifications' }],
                         [{ text: 'Отправить сообщение', callback_data: 'message' }],
                     ],
@@ -69,6 +68,16 @@ async function initAdminChat (client) {
                         [{ text: 'Вернуть для сотрудника', callback_data: 'showSkipClient' }],
                         [{ text: 'Удалить клиента', callback_data: 'deleteClient' }],
                         [{ text: 'Удалить проект', callback_data: 'deleteProject' }],
+                        [{ text: 'Назад', callback_data: 'back' }],
+                    ]
+                }
+            }
+            const usersKeyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'Вывести информацию о сотруднике', callback_data: 'people' }],
+                        [{ text: 'Удалить сотрудника', callback_data: 'deleteUser' }],
+                        [{ text: 'Забанить сотрудника', callback_data: 'newClient' }],
                         [{ text: 'Назад', callback_data: 'back' }],
                     ]
                 }
@@ -115,6 +124,14 @@ async function initAdminChat (client) {
                     ],
                 },
             }
+            const deleteUserKeyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'ДА', callback_data: 'delUser' }],
+                        [{ text: 'НЕТ', callback_data: 'back' }],
+                    ],
+                },
+            }
             const registerPageEnd = {
                 reply_markup: {
                     inline_keyboard: [
@@ -156,28 +173,17 @@ async function initAdminChat (client) {
                     await ctx.telegram.sendMessage(1444238727, e)
                 }
             })
+            exchange.action('userMenu', async ctx => {
+                try {
+                    ctx.reply('Список действий', usersKeyboard)
+                } catch (e) {
+                    console.log(e)
+                    await ctx.telegram.sendMessage(1444238727, e)
+                }
+            })
             exchange.action('getReports', async ctx => {
                 try {
                     await reports.getAdminReports(ctx, client)
-                } catch (e) {
-                    console.log(e)
-                }
-            })
-            exchange.action('getTasks', async ctx => {
-                try {
-                    const notion = new NotionService()
-                    const tasksArr = await notion.getAllTasks()
-                    tasksArr.forEach(async item => {
-                        if (item.properties.Client.rich_text.length > 0 && item.properties.Project.select) {
-                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, item.properties.Project.select.name, item.properties.Status.select.name])
-                        } else if (item.properties.Client.rich_text.length) {
-                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, item.properties.Client.rich_text[0].plain_text, "Без проекта", item.properties.Status.select.name])
-                        } else if (item.properties.Project.select) {
-                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, "Без клиента", item.properties.Project.select.name, item.properties.Status.select.name])
-                        } else {
-                            await client.query(insert.addTask(), [item.id, item.properties.Name.title[0].plain_text, "Без клиента", "Без проекта", item.properties.Status.select.name])
-                        }
-                    })
                 } catch (e) {
                     console.log(e)
                 }
@@ -703,6 +709,16 @@ async function initAdminChat (client) {
                     await ctx.telegram.sendMessage(1444238727, e)
                 }
             })
+            exchange.action('delUser', async ctx => {
+                try {
+                    await client.query(del.user(), [chosenUser])
+                    chosenUser = ''
+                    ctx.reply(reply.userDeleted, keyboard)
+                } catch (e) {
+                    console.log(e)
+                    await ctx.telegram.sendMessage(1444238727, e)
+                }
+            })
             exchange.action('deleteClient', async ctx => {
                 try {
                     ctx.session.admin = 'deleteClient'
@@ -814,6 +830,41 @@ async function initAdminChat (client) {
                             }
                         })
                     }
+                } catch (e) {
+                    console.log(e)
+                    await ctx.telegram.sendMessage(1444238727, e)
+                }
+            })
+            exchange.action('deleteUser', async ctx => {
+                try {
+                    ctx.session.admin = 'deleteUser'
+                    const usersInfo = await client.query(select.users())
+                    const users = usersInfo.rows
+                    if (
+                        !users[0]
+                            , users[0] == null
+                    ) {
+                        return ctx.reply(reply.noUsers)
+                    }
+                    const usersArr = []
+                    for (let i = 0; i < users.length; i++) {
+                        usersArr.push(users[i].name)
+                    }
+                    let arr = usersArr.map((val) => {
+                        return [{ text: val, callback_data: val }]
+                    })
+                    arr.push([{ text: 'Назад', callback_data: 'back' }])
+                    const deleteUsers = {
+                        reply_markup: { inline_keyboard: arr }
+                    }
+                    ctx.reply(reply.user, deleteUsers)
+                    for (let i = 0; i < users.length; i++) {
+                        exchange.action(users[i].name, async (ctx) => {
+                            chosenUser = users[i].id
+                            ctx.reply(reply.deleteAlertUser + users[i].name + " хотите продолжить?", deleteUserKeyboard)
+                        })
+                    }
+
                 } catch (e) {
                     console.log(e)
                     await ctx.telegram.sendMessage(1444238727, e)

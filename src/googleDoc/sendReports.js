@@ -226,14 +226,15 @@ async function sendReport (client, spreadsheet_id, page_id, id) {
         for (let i = 0; i < tracking.length; i++) {
             try {
                 await sheet.setHeaderRow(
-                  ['Дата', 'Выполненая работа', 'кол-во часов', 'Клиент', 'Проект']
+                  ['Дата', 'Выполненая работа', 'кол-во часов', 'Клиент', 'Проект','Ссылка на notion']
                 )
                 await sheet.addRow({
                     'Дата': moment().format('DD.MM.YYYY'),
                     'Выполненая работа': tracking[i].title,
                     'кол-во часов': tracking[i].time,
                     'Клиент': tracking[i].client,
-                    'Проект': tracking[i].project
+                    'Проект': tracking[i].project,
+                    'Ссылка на notion':tracking[i].notion_link
                 })
             } catch (e) {console.log(e)}
             console.log('sent')
