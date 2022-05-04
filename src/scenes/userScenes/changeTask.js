@@ -28,6 +28,9 @@ module.exports = async function changeTask(client) {
                 ctx.scene.enter('user')
                 break
             default:
+                ctx.session.tasksArr = ctx.session.tasksArr.filter(item => {
+                    return item.id === ctx.update.callback_query.data
+                })
                 ctx.session.choosenTask = ctx.update.callback_query.data
                 ctx.scene.enter("changeTaskMenu")
         }

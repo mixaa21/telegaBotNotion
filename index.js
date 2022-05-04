@@ -11,6 +11,10 @@ const deleteTask = require("./src/scenes/userScenes/deleteTask")
 const changeTask = require("./src/scenes/userScenes/changeTask")
 const changeTaskMenu = require("./src/scenes/userScenes/changeTaskMenu")
 const changeTitle = require("./src/scenes/userScenes/changeTitle")
+const changeAssignee = require("./src/scenes/userScenes/changeAssignee")
+const changeProject = require("./src/scenes/userScenes/changeProject")
+const changeStatus = require("./src/scenes/userScenes/changeStatus")
+const changeClient = require("./src/scenes/userScenes/changeClient")
 const shareTaskByAssignee = require("./src/scenes/userScenes/shareTaskByAssignee")
 const adminChat = require('./src/scenes/adminScenes/admin.scene')
 const initReport = require('./src/scenes/userScenes/report.scene')
@@ -63,9 +67,10 @@ async function start () {
         await changeTaskMenu(client),
         await shareTaskByAssignee(client),
         await changeTitle(client),
-        // await changeAssignee(client),
-        // await changeClient(client),
-        // await changeProject(client),
+        await changeAssignee(client),
+        await changeStatus(client),
+        await changeClient(client),
+        await changeProject(client),
         await initReport(client),                                 // вызываем ипмортированную функцию initReport в которую передаем объект client (postgreSql)
         await initTime(client),                                   // вызываем ипмортированную функцию initTime в которую передаем объект client (postgreSql)
         await initClient(client),                                 // вызываем ипмортированную функцию initClient в которую передаем объект client (postgreSql)

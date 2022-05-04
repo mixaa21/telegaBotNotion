@@ -13,6 +13,7 @@ module.exports = async function changeTaskMenu(client) {
             let taskArr = []
             taskArr.push([{ text: 'Изменить постановку задачи', callback_data: 'changeTitle' }])
             taskArr.push([{ text: 'Изменить исполнителей', callback_data: 'changeAssignee' }])
+            taskArr.push([{ text: 'Изменить статус', callback_data: 'changeStatus' }])
             taskArr.push([{ text: 'Изменить клиента', callback_data: 'changeClient' }])
             taskArr.push([{ text: 'Изменить проект', callback_data: 'changeProject' }])
             taskArr.push([{ text: 'Отменить', callback_data: 'back' }])
@@ -31,6 +32,9 @@ module.exports = async function changeTaskMenu(client) {
                 break
             case 'changeAssignee':
                 ctx.scene.enter("changeAssignee")
+                break
+            case 'changeStatus':
+                ctx.scene.enter("changeStatus")
                 break
             case 'changeClient':
                 ctx.scene.enter("changeClient")

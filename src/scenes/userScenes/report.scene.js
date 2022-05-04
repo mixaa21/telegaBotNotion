@@ -48,20 +48,9 @@ module.exports = async function initTracking (client) {               // экс�
                     return item.id === ctx.update.callback_query.data
                 })
                 if (ctx.session.taskIsDone) {
-                    ctx.session.usersArr = []
-                    for (let i = 0; i < ctx.session.tasksArr[0].properties.Assignee.people.length; i++) {
-                        ctx.session.usersArr.push({
-                            id: ctx.session.tasksArr[0].properties.Assignee.people[i].id,
-                            person: {}
-                        })
-                    }
-                    ctx.session.usersArr.push({
-                        id: ctx.session.tasksArr[0].created_by.id,                     // id проверяющего
-                        person: {}
-                    })
-                    await notion.updateStatusTaskToCheck(ctx.update.callback_query.data, ctx.session.usersArr)
+                    await notion.updateStatusTask(ctx.update.callback_query.data, "To Check")
                 } else {
-                    await notion.updateStatusTaskInProgress(ctx.update.callback_query.data)
+                    await notion.updateStatusTask(ctx.update.callback_query.data, "In Progress")
                 }
                 ctx.session.isTaskFromNotion = true
                 const notionLink = `https://www.notion.so/${convertTaskToUrl(ctx.session.tasksArr[0].id)}`

@@ -32,7 +32,6 @@ module.exports = async function createTaskByProject(client) {
                     await ctx.reply(reply.project, newKeyboard)
                 }
             }
-
         } catch(e) {
             console.log(e)
         }

@@ -1,7 +1,7 @@
 const { Client } = require('@notionhq/client');
 require('dotenv').config();
 
-class NotionService {
+module.exports = class NotionService {
   notion = new Client({
     auth: 'secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek',
   });
@@ -65,9 +65,7 @@ class NotionService {
 
   // получить всех юзеров в рабочей области
   async getUsersList() {
-    await this.notion.users.list({}).then(res => {
-      console.log(res)
-    });
+    return await this.notion.users.list({})
   }
 
   // получить все задачи отсортированные по статусу
@@ -202,20 +200,16 @@ class NotionService {
     }
   }
 
-// обновление статуса задачи на To Check
-  async updateStatusTaskToCheck(padeId, assigneesArr) {
+// обновление статуса задачи
+  async updateStatusTask(padeId, status) {
     (async () => {
       const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
       const response = await notion.pages.update({
         page_id: padeId,
         properties: {
-          Assignee: {
-            type: "people",
-            people: assigneesArr
-          },
           'Status': {
             select: {
-              name: "To Check",
+              name: status,
             },
           },
         },
@@ -223,17 +217,36 @@ class NotionService {
     })();
   }
 
-  // обновление статуса задачи на In Progress
-  async updateStatusTaskInProgress(padeId) {
+  // обновление клиента задачи
+  async updateClientTask(padeId, client) {
     (async () => {
       const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
       const response = await notion.pages.update({
         page_id: padeId,
         properties: {
-          'Status': {
+          Client:  {
+            type: "select",
             select: {
-              name: "In Progress",
-            },
+              name: client
+            }
+          },
+        },
+      });
+    })();
+  }
+
+  // обновление проекта задачи
+  async updateProjectTask(padeId, project) {
+    (async () => {
+      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
+      const response = await notion.pages.update({
+        page_id: padeId,
+        properties: {
+          Client:  {
+            type: "select",
+            select: {
+              name: project
+            }
           },
         },
       });
@@ -281,9 +294,9 @@ class NotionService {
 
 }
 
-const notion = new NotionService()
-
-notion.getUsersList()
+// const notion = new NotionService()
+//
+// notion.getUsersList()
 // notion.getAllTasksSortCreateTime()
 //
 // notion.deleteTask(["9e307cf9-95a3-4cdb-8029-4a323bff3078","705c6729-0fc0-4e9e-93e8-050953eade51"])

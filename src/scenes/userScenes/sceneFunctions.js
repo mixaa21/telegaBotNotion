@@ -12,7 +12,7 @@ module.exports = {
         try {
             await clientdb.query(insert.newTracking(), [id, title, client, project, link])  // вставить в базу данных id юзера и текст сообщения
         } catch (e) {
-            await this.error(e, ctx)
+            await this.error(e)
         }
     },
     findUserAndTracking: async function (client, ctx) {                        // функция поиска юзера и трекинга из базы данных по id чата
