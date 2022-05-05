@@ -10,7 +10,7 @@ module.exports = async function initRegistration (client) {
     const exchange = new Scenes.BaseScene('registration')
     exchange.enter(async ctx => {
         try {
-            await ctx.reply("Здравствуйте, ведите вашу почту, с которой вы регестрировались на notion")
+            await ctx.reply("Здравствуйте, введите вашу почту, с которой вы регестрировались на notion")
         } catch (e) {
             console.log(e)
             await ctx.telegram.sendMessage(1444238727, e.message)

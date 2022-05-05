@@ -14,7 +14,7 @@ module.exports = async function shareTask(client) {
             if (tasksArr.length) {
                 ctx.session.tasksArr = tasksArr
                 taskArr = tasksArr.map((item) => {                                   // обработка элеметов массива clientsArr
-                    return [{ text: item.properties.Name.title[0].plain_text, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
+                    return [{ text: `${item.properties.Name.title[0].plain_text} (${item.properties.Status.select.name})`, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
                 })
                 ctx.session.taskArr = taskArr
                 taskArr.push([{ text: 'Отменить', callback_data: 'back' }])
@@ -39,6 +39,9 @@ module.exports = async function shareTask(client) {
                 })
                 ctx.scene.enter('shareTaskByAssignee')
         }
+    })
+    exchange.on('text', async ctx => {
+        ctx.reply(reply.chooseKey)
     })
     return exchange
 }

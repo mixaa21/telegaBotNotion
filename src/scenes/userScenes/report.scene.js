@@ -12,8 +12,9 @@ module.exports = async function initTracking (client) {               // экс�
         try {
             let tasksArr = await notion.getActiveTasks(ctx.session.userNotionId)
             ctx.session.tasksArr = tasksArr
+            let check = false
             taskArr = tasksArr.map((item) => {                                   // обработка элеметов массива clientsArr
-                return [{ text: item.properties.Name.title[0].plain_text, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
+                return [{ text: `${item.properties.Name.title[0].plain_text} (${item.properties.Status.select.name})`, callback_data: item.id }]                    // вернуть массив объектов для telegram клавиатуры с параметрами text которые будут отображаться на кнопке и callback_data с передаваемым значением
             })
             ctx.session.taskArr = taskArr
             taskArr.push([{ text: 'Ввести свою', callback_data: 'inputowntask' }])
@@ -37,6 +38,7 @@ module.exports = async function initTracking (client) {               // экс�
     exchange.on('callback_query', async ctx => {
         switch (ctx.update.callback_query.data) {
             case 'inputowntask':
+                ctx.session.ownTask = true
                 await ctx.reply("Введите вашу задачу")
                 return
                 break
@@ -64,12 +66,16 @@ module.exports = async function initTracking (client) {               // экс�
                     await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, "Без клиента", "Без проекта", notionLink)
                 }
                 ctx.scene.enter('time')
-
         }
     })
     exchange.on('text', async ctx => {
-        await functions.addNewReport(client, ctx.session.userId, ctx.message.text)
-        ctx.scene.enter('time')
+        if (ctx.session.ownTask) {
+            await functions.addNewReport(client, ctx.session.userId, ctx.message.text)
+            ctx.scene.enter('time')
+        } else {
+            ctx.reply(reply.chooseKey)
+        }
+
     })
     return exchange
 }

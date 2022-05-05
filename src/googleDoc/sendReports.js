@@ -142,7 +142,7 @@ module.exports = {
         }, { 'timezone': 'Europe/Moscow' })
     },
     startSendingReports: async function (client) {
-        cron.schedule('30,0 * * * * 1-5', async () => {
+        cron.schedule('* * * * 1-5', async () => {
             const usersData = await client.query(select.users())
               , users = usersData.rows
             for (let i = 0; i < users.length; i++) {
@@ -234,7 +234,7 @@ async function sendReport (client, spreadsheet_id, page_id, id) {
                     'кол-во часов': tracking[i].time,
                     'Клиент': tracking[i].client,
                     'Проект': tracking[i].project,
-                    'Ссылка на notion':tracking[i].notion_link
+                    'Ссылка на notion':tracking[i].notion_link,
                 })
             } catch (e) {console.log(e)}
             console.log('sent')

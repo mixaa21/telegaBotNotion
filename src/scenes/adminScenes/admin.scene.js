@@ -51,6 +51,9 @@ async function initAdminChat (client) {
                         [{ text: 'Сотрудники', callback_data: 'userMenu' }],
                         [{ text: 'Уведомления', callback_data: 'notifications' }],
                         [{ text: 'Отправить сообщение', callback_data: 'message' }],
+                        [{ text: 'Создать задачу', callback_data: 'createTask' }],
+                        [{ text: 'Изменить задачу', callback_data: 'changeTask' }],
+                        [{ text: 'Удалить задачу', callback_data: 'deleteTask' }]
                     ],
                 },
             }
@@ -480,6 +483,30 @@ async function initAdminChat (client) {
                         })
                     }
 
+                } catch (e) {
+                    console.log(e)
+                    await ctx.telegram.sendMessage(1444238727, e)
+                }
+            })
+            exchange.action('createTask', async ctx => {
+                try {
+                    ctx.scene.enter('createTaskByClient')
+                } catch (e) {
+                    console.log(e)
+                    await ctx.telegram.sendMessage(1444238727, e)
+                }
+            })
+            exchange.action('changeTask', async ctx => {
+                try {
+                    ctx.scene.enter('changeTask')
+                } catch (e) {
+                    console.log(e)
+                    await ctx.telegram.sendMessage(1444238727, e)
+                }
+            })
+            exchange.action('deleteTask', async ctx => {
+                try {
+                    ctx.scene.enter('deleteTask')
                 } catch (e) {
                     console.log(e)
                     await ctx.telegram.sendMessage(1444238727, e)

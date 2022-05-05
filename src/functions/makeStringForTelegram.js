@@ -4,7 +4,7 @@ module.exports = async function makeStringForTelegram(arr) {
     })
     let tasks = ""
     for (let i = 0; i < taskArr.length; i++) {
-        tasks += '\n' + taskArr[i]
+        tasks += '\n' + `${i + 1}. ` + taskArr[i]
     }
     return tasks
 }

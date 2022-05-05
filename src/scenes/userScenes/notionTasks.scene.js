@@ -11,18 +11,12 @@ module.exports = async function initnotionTasks (client) {                      
     const exchange = new Scenes.BaseScene('notionTasks')                                // создаем объект exchange класса BaseScene с параметром user
     exchange.enter(async ctx => {                                               // событие если вошли в сцену
         try {                                                                       // пытаться
-            await ctx.reply('Выберите опцию с клавиатуры', Markup
+            await ctx.reply(reply.chooseKey, Markup
                 .keyboard([
-                    ['Вывести задачи, которые мне нужно выполнить'],
-                    ['Вывести задачи, которые в процессе'],
-                    ['Затрекать задачу'],
-                    ['Затрекать выполненную задачу'],
-                    ['Создать задачу'],
-                    ['Поделиться задачей'],
-                    ['Изменить задачу'],
-                    ['Удалить задачу'],
+                ['Вывести задачи, которые мне нужно выполнить', 'Вывести задачи, которые в процессе'],
+                    ['Затрекать задачу', 'Затрекать выполненную задачу'],
+                    ['Создать задачу', 'Поделиться задачей'],
                 ])
-                .oneTime()
                 .resize()
             )
         } catch (e) {                                                                          // если ошибка
@@ -66,16 +60,9 @@ module.exports = async function initnotionTasks (client) {                      
                 case 'Поделиться задачей':
                     ctx.scene.enter('shareTask')
                     break
-                case 'Изменить задачу':
-                    ctx.scene.enter('changeTask')
-                    break
-                case 'Удалить задачу':
-                    ctx.scene.enter('deleteTask')
-                    break
                 default:
-                    await ctx.reply('Выберите опцию с клавиатуры пожалуйста')
+                    await ctx.reply(reply.chooseKey)
             }
-
         } catch (e) {
             console.log(e)
         }

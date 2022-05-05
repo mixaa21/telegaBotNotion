@@ -3,9 +3,9 @@ require('dotenv').config();
 
 module.exports = class NotionService {
   notion = new Client({
-    auth: 'secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek',
+    auth: process.env.NOTION_TOKEN,
   });
-  databaseId = '1ae042298a32413a8475200b8f165dda';
+  databaseId = process.env.DATABASE_NOTION_ID;
 
 // создать новую задачу
   async createTask(client, project, title, assigneesArr) {
@@ -86,7 +86,7 @@ module.exports = class NotionService {
   async getAllTasksSortCreateTime() {
     const res = await this.notion.databases.query({
       database_id: this.databaseId,
-      "sorts": [
+      sorts: [
         {
           "property": "Date Created",
           "direction": "ascending"
@@ -100,6 +100,12 @@ module.exports = class NotionService {
   async getActiveTasks(userId) {
     const res = await this.notion.databases.query({
       database_id: this.databaseId,
+      sorts: [
+        {
+          "property": "Status",
+          "direction": "ascending"
+        }
+      ],
       filter: {
         and: [{
           property: "Assignee",

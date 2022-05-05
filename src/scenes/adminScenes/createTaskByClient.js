@@ -1,7 +1,6 @@
 const {Scenes} = require("telegraf");
 const reply = require('../../../reply.json')
 const select = require("../../database/query/select");
-const split = require("../../functions/split");                                        // импортируем replay.json для сообщений
 
 
 module.exports = async function createTaskByClient(client) {
@@ -39,7 +38,7 @@ module.exports = async function createTaskByClient(client) {
     exchange.on("callback_query", async ctx => {
         switch (ctx.update.callback_query.data) {
             case "back":
-                ctx.scene.enter("user")
+                ctx.scene.enter("admin")
                 break
             case "noclient":
                 ctx.session.chosenClientname = "Без клиента"
@@ -52,7 +51,9 @@ module.exports = async function createTaskByClient(client) {
                 ctx.session.chosenClientname = ctx.session.chosenClientname[0][0].text
                 ctx.scene.enter("createTaskByProject")
         }
-
+    })
+    exchange.on('text', async ctx => {
+        ctx.reply(reply.chooseKey)
     })
     return exchange
 }

@@ -1,8 +1,5 @@
 const {Scenes} = require("telegraf");
 const reply = require('../../../reply.json')
-const select = require("../../database/query/select");
-const split = require("../../functions/split");
-const functions = require("./sceneFunctions");                                        // импортируем replay.json для сообщений
 const NotionService = require("../../notion/notionService");                                        // импортируем replay.json для сообщений
 
 module.exports = async function changeTitle(client) {
@@ -18,7 +15,7 @@ module.exports = async function changeTitle(client) {
     exchange.on("text", async ctx => {
         notion.updateNameTask(ctx.session.choosenTask, ctx.message.text)
         ctx.reply(reply.changeTaskIsDone)
-        ctx.scene.enter("user")
+        ctx.scene.enter("admin")
     })
     return exchange
 }

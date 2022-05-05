@@ -1,8 +1,6 @@
 const {Scenes} = require("telegraf");
 const reply = require('../../../reply.json')
 const select = require("../../database/query/select");
-const split = require("../../functions/split");
-const functions = require("./sceneFunctions");                                        // импортируем replay.json для сообщений
 const NotionService = require("../../notion/notionService");                                        // импортируем replay.json для сообщений
 
 module.exports = async function changeAssignee(client) {
@@ -33,12 +31,12 @@ module.exports = async function changeAssignee(client) {
     exchange.on("callback_query", async ctx => {
         switch (ctx.update.callback_query.data) {
             case 'back':
-                ctx.scene.enter('user')
+                ctx.scene.enter('admin')
                 break
             case 'changeAssignee':
                 notion.updateAssigneeTask(ctx.session.choosenTask, ctx.session.usersArr)
                 await ctx.reply(reply.changeAssignee)
-                ctx.scene.enter("user")
+                ctx.scene.enter("admin")
                 break
             default:
                 ctx.session.usersArr.push({

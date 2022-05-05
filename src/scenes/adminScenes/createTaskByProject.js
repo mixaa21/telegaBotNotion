@@ -39,7 +39,7 @@ module.exports = async function createTaskByProject(client) {
     exchange.on("callback_query", async ctx => {
         switch (ctx.update.callback_query.data) {
             case "back":
-                ctx.scene.enter("user")
+                ctx.scene.enter("admin")
                 break
             case "noProject":
                 ctx.session.chosenProject = "Без проекта"
