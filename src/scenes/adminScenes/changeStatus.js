@@ -4,7 +4,7 @@ const NotionService = require("../../notion/notionService");                    
 
 module.exports = async function changeStatus(client) {
     const exchange = new Scenes.BaseScene('changeStatus')                                // создаем объект exchange класса BaseScene с параметром user
-    const notion = new NotionService()
+    const notion = new NotionService(process.env.DATABASE_WORKSPACE)
     exchange.enter(async ctx => {
         try {
             let taskArr = []

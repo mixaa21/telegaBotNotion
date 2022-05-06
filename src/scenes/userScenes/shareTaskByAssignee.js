@@ -31,12 +31,16 @@ module.exports = async function shareTaskByAssignee(client) {
         }
     })
     exchange.on("callback_query", async ctx => {
+        ctx.session.usersArr.push({
+            id: ctx.session.userNotionId,
+            person: {}
+        })
         switch (ctx.update.callback_query.data) {
             case "back":
                 ctx.scene.enter("user")
                 break
             case "share":
-                notion = new NotionService()
+                notion = new NotionService(process.env.DATABASE_WORKSPACE)
                 await notion.updateAssigneeTask(ctx.session.tasksArr[0].id, ctx.session.usersArr)
                 ctx.reply(reply.shareTask)
                 ctx.scene.enter("user")

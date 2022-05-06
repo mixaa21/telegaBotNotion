@@ -7,7 +7,7 @@ const convertTaskToUrl = require("../../functions/convertTaskToUrl")
 
 module.exports = async function initTracking (client) {               // экспортируем функцию initTracking
     const exchange = new Scenes.BaseScene('report')
-    const notion = new NotionService()
+    let notion = new NotionService(process.env.DATABASE_WORKSPACE)
     const textHandler = async (ctx) => {                              // функция текстовый обработчик
         try {
             let tasksArr = await notion.getActiveTasks(ctx.session.userNotionId)
@@ -56,12 +56,13 @@ module.exports = async function initTracking (client) {               // экс�
                 }
                 ctx.session.isTaskFromNotion = true
                 const notionLink = `https://www.notion.so/${convertTaskToUrl(ctx.session.tasksArr[0].id)}`
-                if (ctx.session.tasksArr[0].properties.Client.select && ctx.session.tasksArr[0].properties.Project.select) {
-                    await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, ctx.session.tasksArr[0].properties.Client.select.name, ctx.session.tasksArr[0].properties.Project.select.name, notionLink)
-                } else if (ctx.session.tasksArr[0].properties.Client.select) {
-                    await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, ctx.session.tasksArr[0].properties.Client.select.name, "Без проекта", notionLink)
-                } else if (ctx.session.tasksArr[0].properties.Project.select) {
-                    await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, "Без клиента", ctx.session.tasksArr[0].properties.Project.select.name, notionLink)
+                if (ctx.session.tasksArr[0].properties.Project.relation.length) {
+                    const notion = new NotionService(process.env.DATABASE_PROJECTS)
+                    pagesArr = await notion.getAllPages()
+                    pagesArr = pagesArr.filter(item => {
+                        return item.id === ctx.session.tasksArr[0].properties.Project.relation[0].id
+                    })
+                    await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, pagesArr[0].properties.Name.title[0].plain_text, pagesArr[0].properties.Name.title[0].plain_text, notionLink)
                 } else {
                     await functions.addNewReport(client, ctx.session.userId, ctx.session.tasksArr[0].properties.Name.title[0].plain_text, "Без клиента", "Без проекта", notionLink)
                 }

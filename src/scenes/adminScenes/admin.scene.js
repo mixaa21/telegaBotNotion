@@ -9,7 +9,6 @@ const service_account = require('../../../service-account.json')
 const split = require('../../functions/split')
 const removeItem = require('../../functions/removeItem')
 const reports = require('../../googleDoc/sendReports')
-const NotionService = require("../../notion/notionService")
 
 
 //Проверка на то, зарегистрирован пользователь или нет.
@@ -51,9 +50,9 @@ async function initAdminChat (client) {
                         [{ text: 'Сотрудники', callback_data: 'userMenu' }],
                         [{ text: 'Уведомления', callback_data: 'notifications' }],
                         [{ text: 'Отправить сообщение', callback_data: 'message' }],
-                        [{ text: 'Создать задачу', callback_data: 'createTask' }],
-                        [{ text: 'Изменить задачу', callback_data: 'changeTask' }],
-                        [{ text: 'Удалить задачу', callback_data: 'deleteTask' }]
+                        // [{ text: 'Создать задачу', callback_data: 'createTask' }],
+                        // [{ text: 'Изменить задачу', callback_data: 'changeTask' }],
+                        // [{ text: 'Удалить задачу', callback_data: 'deleteTask' }]
                     ],
                 },
             }

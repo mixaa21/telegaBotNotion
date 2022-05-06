@@ -27,7 +27,7 @@ module.exports = async function initnotionTasks (client) {                      
     })
     exchange.on("text", async ctx => {
         try {
-            const notion = new NotionService()
+            const notion = new NotionService(process.env.DATABASE_WORKSPACE)
             let tasks
             switch (ctx.update.message.text) {
                 case "Вывести задачи, которые мне нужно выполнить":

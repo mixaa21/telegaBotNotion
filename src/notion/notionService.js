@@ -3,12 +3,15 @@ require('dotenv').config();
 
 module.exports = class NotionService {
   notion = new Client({
-    auth: process.env.NOTION_TOKEN,
+    auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek",
   });
-  databaseId = process.env.DATABASE_NOTION_ID;
+  databaseId
+  constructor(databaseId) {
+    this.databaseId = databaseId
+  }
 
 // создать новую задачу
-  async createTask(client, project, title, assigneesArr) {
+  async createTask(title, assigneesArr) {
     return this.notion.pages.create({
       parent: {
         database_id: this.databaseId,
@@ -45,10 +48,11 @@ module.exports = class NotionService {
           }
         },
         Project: {
-          type: "select",
-          select: {
-            name: project
-          }
+          id: "ZnYf",
+          type: "relation",
+          relation: [{
+            id: "c29eba40-5861-40a7-9f19-0a01fcc3ff36"
+          }]
         }
       },
     });
@@ -81,17 +85,18 @@ module.exports = class NotionService {
     });
     return res.results
   }
+  // получить все страницы из базы данных в notion
+  async getAllPages() {
+    const res = await this.notion.databases.query({
+      database_id: this.databaseId,
+    });
+    return res.results
+  }
 
   // получить все задачи отсортированные по времени создания
   async getAllTasksSortCreateTime() {
     const res = await this.notion.databases.query({
       database_id: this.databaseId,
-      sorts: [
-        {
-          "property": "Date Created",
-          "direction": "ascending"
-        }
-      ]
     });
     return res.results
   }
@@ -298,12 +303,35 @@ module.exports = class NotionService {
     })();
   }
 
+  // добавить проекты в notion
+  async createProject(projectArr) {
+    projectArr.forEach(title => {
+      return this.notion.pages.create({
+        parent: {
+          database_id: this.databaseId,
+        },
+        properties: {
+          Name: {
+            type: 'title',
+            title: [
+              {
+                type: 'text',
+                text: {
+                  content: title,
+                },
+              },
+            ],
+          },
+        },
+      });
+    })
+  }
+
 }
 
-// const notion = new NotionService()
+// const notion = new NotionService("567b3e16a80d4055851be9772bdddf55")
 //
-// notion.getUsersList()
-// notion.getAllTasksSortCreateTime()
+// notion.getAllPages()
 //
 // notion.deleteTask(["9e307cf9-95a3-4cdb-8029-4a323bff3078","705c6729-0fc0-4e9e-93e8-050953eade51"])
 
@@ -315,6 +343,8 @@ module.exports = class NotionService {
 //   id: "5f72d0eb-af7a-48d9-95cd-cee1f802e9f6",
 //   person: {}
 // }]
+//
+// notion.createTask("hello")
 //
 // notion.updateAssigneeTask(padeId, arr)
 

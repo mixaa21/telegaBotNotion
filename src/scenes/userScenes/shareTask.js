@@ -9,7 +9,7 @@ module.exports = async function shareTask(client) {
     const exchange = new Scenes.BaseScene('shareTask')                                // создаем объект exchange класса BaseScene с параметром user
     exchange.enter(async ctx => {
         try {
-            notion = new NotionService()
+            notion = new NotionService(process.env.DATABASE_WORKSPACE)
             let tasksArr = await notion.getActiveTasks(ctx.session.userNotionId)
             if (tasksArr.length) {
                 ctx.session.tasksArr = tasksArr

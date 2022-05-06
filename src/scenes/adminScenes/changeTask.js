@@ -3,7 +3,7 @@ const NotionService = require("../../notion/notionService");                    
 
 module.exports = async function changeTask(client) {
     const exchange = new Scenes.BaseScene('changeTask')                                // создаем объект exchange класса BaseScene с параметром user
-    const notion = new NotionService()
+    const notion = new NotionService(process.env.DATABASE_WORKSPACE)
     exchange.enter(async ctx => {
         try {
             let tasksArr = await notion.getAllTasksSortCreateTime()

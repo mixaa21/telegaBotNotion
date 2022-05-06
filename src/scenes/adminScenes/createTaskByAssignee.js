@@ -35,7 +35,7 @@ module.exports = async function createTaskByAssigne(client) {
                 ctx.scene.enter("admin")
                 break
             case "create":
-                notion = new NotionService()
+                notion = new NotionService(process.env.DATABASE_WORKSPACE)
                 await notion.createTask(ctx.session.chosenClientname, ctx.session.chosenProject, ctx.session.inputTask, ctx.session.usersArr)
                 await ctx.reply(reply.taskIsCreated)
                 ctx.scene.enter("admin")
