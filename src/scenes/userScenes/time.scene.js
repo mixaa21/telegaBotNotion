@@ -92,6 +92,7 @@ module.exports = async function initTime (client) {             // экспор�
                 if (sessionCheck) {
                     await client.query(update.time(), [time, trackingId.rows[0].id])
                     if (ctx.session.isTaskFromNotion) {
+                        ctx.session.isTaskFromNotion = false
                         await ctx.reply(reply.reportSaved)
                         ctx.scene.enter('user')
                     } else {

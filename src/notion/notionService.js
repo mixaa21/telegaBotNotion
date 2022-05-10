@@ -3,7 +3,7 @@ require('dotenv').config();
 
 module.exports = class NotionService {
   notion = new Client({
-    auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek",
+    auth: process.env.NOTION_TOKEN,
   });
   databaseId
   constructor(databaseId) {
@@ -59,9 +59,8 @@ module.exports = class NotionService {
   }
 
   async deleteTask(arrId) {
-    const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
     arrId.forEach(async id => {
-      const response = await notion.blocks.delete({
+      const response = await this.notion.blocks.delete({
         block_id: id,
       });
     })
@@ -214,8 +213,7 @@ module.exports = class NotionService {
 // обновление статуса задачи
   async updateStatusTask(padeId, status) {
     (async () => {
-      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
-      const response = await notion.pages.update({
+      const response = await this.notion.pages.update({
         page_id: padeId,
         properties: {
           'Status': {
@@ -231,8 +229,7 @@ module.exports = class NotionService {
   // обновление клиента задачи
   async updateClientTask(padeId, client) {
     (async () => {
-      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
-      const response = await notion.pages.update({
+      const response = await this.notion.pages.update({
         page_id: padeId,
         properties: {
           Client:  {
@@ -249,8 +246,7 @@ module.exports = class NotionService {
   // обновление проекта задачи
   async updateProjectTask(padeId, project) {
     (async () => {
-      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
-      const response = await notion.pages.update({
+      const response = await this.notion.pages.update({
         page_id: padeId,
         properties: {
           Client:  {
@@ -267,8 +263,7 @@ module.exports = class NotionService {
   // обновление постановки задачи
   async updateNameTask(padeId, title) {
     (async () => {
-      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
-      const response = await notion.pages.update({
+      const response = await this.notion.pages.update({
         page_id: padeId,
         properties: {
           Name: {
@@ -290,8 +285,7 @@ module.exports = class NotionService {
   // обновить исполнителей в задаче
   async updateAssigneeTask(padeId, assigneesArr) {
     (async () => {
-      const notion = new Client({ auth: "secret_d56RsiCIaw51C1NgmJE24QMosHcFvFv3Uptq1aYSKek" });
-      const response = await notion.pages.update({
+      const response = await this.notion.pages.update({
         page_id: padeId,
         properties: {
           Assignee: {
